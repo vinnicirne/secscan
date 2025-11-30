@@ -3,9 +3,12 @@ import react from '@vitejs/plugin-react';
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
+  // Garante que o process.cwd() funcione mesmo sem os tipos explícitos em alguns ambientes,
+  // embora o @types/node no package.json deva resolver isso.
+  const cwd = process.cwd ? process.cwd() : '.';
+  
   // Carrega variáveis de arquivos .env locais (caso esteja rodando localmente)
-  // O terceiro parâmetro '' permite carregar variáveis sem o prefixo VITE_
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, cwd, '');
   
   // Tenta pegar a chave de API de várias fontes:
   // 1. process.env.API_KEY: Variável de ambiente do sistema (Vercel)
