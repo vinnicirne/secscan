@@ -72,14 +72,16 @@ export const analyzeSecurity = async (
   options: ScanOptions = { checkSecurity: true, checkSeo: true }
 ): Promise<AnalysisResult> => {
   
-  // A variável process.env.API_KEY é substituída pelo Vite no tempo de build (ver vite.config.ts)
-  // O uso de 'as any' evita erros de linter se os types do node não estiverem presentes
-  const apiKey = process.env.API_KEY;
+  // Tenta recuperar a chave de API de todas as formas possíveis injetadas pelo Vite
+  // 1. process.env.API_KEY (definido no vite.config.ts)
+  // 2. import.meta.env.VITE_API_KEY (padrão Vite)
+  const apiKey = process.env.API_KEY || import.meta.env.VITE_API_KEY;
 
-  // Logs de diagnóstico para ajudar a identificar problemas na Vercel
-  console.log("Diagnosticando Configuração da API:", { 
-    hasKey: !!apiKey, 
-    keyLength: apiKey ? apiKey.length : 0
+  // Logs de diagnóstico (seguros, sem expor a chave inteira)
+  console.log("Status da API Key:", { 
+    found: !!apiKey,
+    length: apiKey ? apiKey.length : 0,
+    source: process.env.API_KEY ? 'process.env' : (import.meta.env.VITE_API_KEY ? 'import.meta' : 'none')
   });
 
   if (!apiKey) {
