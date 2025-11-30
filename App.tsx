@@ -145,8 +145,16 @@ function App() {
 
       setResult(enrichedResult);
       saveToHistory(enrichedResult);
-    } catch (err) {
-      setError("Falha ao analisar. Verifique sua chave de API ou tente novamente.");
+    } catch (err: any) {
+      console.error("Erro capturado no App:", err);
+      
+      if (err.message === "API_KEY_MISSING") {
+        setError("Configuração de API Ausente. Verifique se a variável de ambiente 'API_KEY' está configurada na Vercel.");
+      } else if (err.message && err.message.includes("429")) {
+        setError("Limite de uso da API excedido temporariamente. Tente novamente em alguns minutos.");
+      } else {
+        setError("Falha ao analisar. Verifique sua conexão ou tente novamente.");
+      }
     } finally {
       clearInterval(loadingInterval);
       setIsLoading(false);

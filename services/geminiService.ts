@@ -71,9 +71,20 @@ export const analyzeSecurity = async (
   type: AnalysisType,
   options: ScanOptions = { checkSecurity: true, checkSeo: true }
 ): Promise<AnalysisResult> => {
+  
+  // A variável process.env.API_KEY é substituída pelo Vite no tempo de build (ver vite.config.ts)
+  // O uso de 'as any' evita erros de linter se os types do node não estiverem presentes
   const apiKey = process.env.API_KEY;
+
+  // Logs de diagnóstico para ajudar a identificar problemas na Vercel
+  console.log("Diagnosticando Configuração da API:", { 
+    hasKey: !!apiKey, 
+    keyLength: apiKey ? apiKey.length : 0,
+    environment: import.meta.env.MODE
+  });
+
   if (!apiKey) {
-    throw new Error("API Key não encontrada. Configure a variável de ambiente API_KEY.");
+    throw new Error("API_KEY_MISSING");
   }
 
   const ai = new GoogleGenAI({ apiKey });
@@ -135,7 +146,7 @@ export const analyzeSecurity = async (
 
     return JSON.parse(resultText) as AnalysisResult;
   } catch (error) {
-    console.error("Erro na análise de segurança:", error);
+    console.error("Erro detalhado na análise de segurança:", error);
     throw error;
   }
 };
