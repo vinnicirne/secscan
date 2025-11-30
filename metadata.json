@@ -1,0 +1,5 @@
+{
+  "name": "Security Scan 1.0",
+  "description": "Security Scan é uma ferramenta gratuita de análise de segurança e auditoria SEO para sites. Verifique vulnerabilidades, endpoints expostos, cabeçalhos HTTP e otimização para motores de busca com diagnósticos avançados de IA. Ideal para desenvolvedores, webmasters e proprietários de sites.",
+  "requestFramePermissions": []
+}
