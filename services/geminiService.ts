@@ -79,8 +79,7 @@ export const analyzeSecurity = async (
   // Logs de diagnóstico para ajudar a identificar problemas na Vercel
   console.log("Diagnosticando Configuração da API:", { 
     hasKey: !!apiKey, 
-    keyLength: apiKey ? apiKey.length : 0,
-    environment: import.meta.env.MODE
+    keyLength: apiKey ? apiKey.length : 0
   });
 
   if (!apiKey) {
