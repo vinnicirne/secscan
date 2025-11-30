@@ -72,19 +72,19 @@ export const analyzeSecurity = async (
   options: ScanOptions = { checkSecurity: true, checkSeo: true }
 ): Promise<AnalysisResult> => {
   
-  // Tenta recuperar a chave de API de todas as formas possíveis injetadas pelo Vite
-  // 1. process.env.API_KEY (definido no vite.config.ts)
-  // 2. import.meta.env.VITE_API_KEY (padrão Vite)
-  const apiKey = process.env.API_KEY || import.meta.env.VITE_API_KEY;
+  // Tenta recuperar a chave de API usando o padrão nativo do Vite (VITE_API_KEY)
+  // O vite.config.ts garante que essa variável seja preenchida mesmo se a fonte for API_KEY
+  const apiKey = import.meta.env.VITE_API_KEY || process.env.API_KEY;
 
-  // Logs de diagnóstico (seguros, sem expor a chave inteira)
-  console.log("Status da API Key:", { 
-    found: !!apiKey,
+  // Logs de diagnóstico para o console do navegador (seguros)
+  console.log("[GeminiService] Diagnóstico de Chave:", { 
+    exists: !!apiKey,
     length: apiKey ? apiKey.length : 0,
-    source: process.env.API_KEY ? 'process.env' : (import.meta.env.VITE_API_KEY ? 'import.meta' : 'none')
+    prefix: apiKey ? apiKey.substring(0, 3) + '...' : 'N/A'
   });
 
-  if (!apiKey) {
+  if (!apiKey || apiKey.includes("Sua_Chave") || apiKey.length < 10) {
+    console.error("[GeminiService] Chave inválida ou ausente.");
     throw new Error("API_KEY_MISSING");
   }
 

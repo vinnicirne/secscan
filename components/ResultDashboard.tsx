@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { AnalysisResult } from '../types';
 import AnalysisChart from './AnalysisChart';
 import SeverityBadge from './SeverityBadge';
-import { ShieldCheck, ShieldAlert, FileWarning, AlertTriangle, CheckCircle, Copy, Download, Search, TrendingUp, Lightbulb, LayoutDashboard, Lock, Eye } from 'lucide-react';
+import { ShieldCheck, ShieldAlert, FileWarning, AlertTriangle, CheckCircle, Copy, Download, Search, TrendingUp, Lightbulb, LayoutDashboard, Lock, Eye, Check } from 'lucide-react';
 import clsx from 'clsx';
 import AdSpace from './AdSpace';
 import { CONFIG } from '../config';
@@ -14,10 +14,18 @@ interface ResultDashboardProps {
 
 const ResultDashboard: React.FC<ResultDashboardProps> = ({ result }) => {
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'SECURITY' | 'SEO'>('OVERVIEW');
+  const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   // Helper to determine if a section was actually run
   const hasSecurityRun = result.score > 0 || result.findings.length > 0;
   const hasSeoRun = (result.seoScore || 0) > 0 || (result.seoFindings?.length || 0) > 0;
+
+  const handleCopy = (text: string, index: number) => {
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    setCopiedIndex(index);
+    setTimeout(() => setCopiedIndex(null), 2000);
+  };
 
   const getRiskColor = (level: string) => {
     switch (level) {
@@ -237,7 +245,20 @@ const ResultDashboard: React.FC<ResultDashboardProps> = ({ result }) => {
                       <div className="bg-slate-100 rounded-lg p-3 border border-slate-200">
                         <div className="flex items-center justify-between mb-2">
                           <span className="text-xs font-semibold text-green-600 uppercase">Correção Recomendada</span>
-                          <Copy className="w-3 h-3 text-slate-400 cursor-pointer hover:text-slate-600" />
+                          {copiedIndex === idx ? (
+                            <div className="flex items-center gap-1 text-green-600 animate-in zoom-in duration-200">
+                              <span className="text-[10px] font-bold">Copiado</span>
+                              <Check className="w-3 h-3" />
+                            </div>
+                          ) : (
+                            <div 
+                              className="flex items-center gap-1 cursor-pointer group/copy"
+                              onClick={() => handleCopy(finding.remediation, idx)}
+                            >
+                              <span className="text-[10px] text-slate-400 group-hover/copy:text-blue-600 transition-colors">Copiar</span>
+                              <Copy className="w-3 h-3 text-slate-400 group-hover/copy:text-blue-600 transition-colors" />
+                            </div>
+                          )}
                         </div>
                         <pre className="text-xs text-slate-700 font-mono overflow-x-auto whitespace-pre-wrap">
                           {finding.remediation}

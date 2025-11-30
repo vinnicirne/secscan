@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { Shield, Globe, Play, RefreshCw, AlertCircle, History, Trash2, Clock, CheckSquare, Square } from 'lucide-react';
+import { Shield, Globe, Play, RefreshCw, AlertCircle, History, Trash2, Clock, CheckSquare, Square, Info } from 'lucide-react';
 import { AnalysisResult, AnalysisType, ScanOptions } from './types';
 import { analyzeSecurity } from './services/geminiService';
 import ResultDashboard from './components/ResultDashboard';
@@ -19,6 +18,7 @@ function App() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<AnalysisResult[]>([]);
+  const [showDiagnostics, setShowDiagnostics] = useState(false);
   
   // Legal Pages State
   const [legalPage, setLegalPage] = useState<LegalPageType | null>(null);
@@ -99,6 +99,7 @@ function App() {
     
     setIsLoading(true);
     setError(null);
+    setShowDiagnostics(false);
     setResult(null);
     const loadingInterval = simulateLoadingSteps();
 
@@ -159,6 +160,33 @@ function App() {
       clearInterval(loadingInterval);
       setIsLoading(false);
     }
+  };
+
+  const renderDiagnosticInfo = () => {
+    const key = import.meta.env.VITE_API_KEY;
+    const hasKey = !!key;
+    const keyLen = key ? key.length : 0;
+    
+    return (
+      <div className="mt-3 p-3 bg-slate-800 rounded text-left text-xs font-mono">
+        <p className="text-slate-400 font-bold mb-1">DIAGNÓSTICO TÉCNICO (DEBUG)</p>
+        <div className="grid grid-cols-2 gap-2">
+          <span className="text-slate-400">VITE_API_KEY Status:</span>
+          <span className={hasKey ? "text-green-400" : "text-red-400"}>
+            {hasKey ? "DETECTADA" : "AUSENTE/INDEFINIDA"}
+          </span>
+          
+          <span className="text-slate-400">Tamanho da Chave:</span>
+          <span className="text-blue-300">{keyLen} caracteres</span>
+
+          <span className="text-slate-400">Ambiente (Mode):</span>
+          <span className="text-slate-300">{import.meta.env.MODE}</span>
+        </div>
+        <p className="mt-2 text-slate-500 italic">
+          Nota: Se o status for "AUSENTE", adicione VITE_API_KEY nas variáveis de ambiente da Vercel e faça um Redeploy.
+        </p>
+      </div>
+    );
   };
 
   return (
@@ -337,11 +365,21 @@ function App() {
               </section>
             )}
 
-            {/* Error Message */}
+            {/* Error Message with Diagnostics */}
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl flex items-center gap-3 animate-in fade-in slide-in-from-top-2">
-                <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
-                {error}
+              <div className="bg-red-50 border border-red-200 p-4 rounded-xl animate-in fade-in slide-in-from-top-2">
+                <div className="flex items-center gap-3 text-red-700">
+                  <AlertCircle className="w-5 h-5 shrink-0 text-red-500" />
+                  <div className="flex-1 font-medium">{error}</div>
+                  <button 
+                    onClick={() => setShowDiagnostics(!showDiagnostics)}
+                    className="text-xs flex items-center gap-1 text-red-600 hover:text-red-800 underline underline-offset-2"
+                  >
+                    <Info className="w-3 h-3" />
+                    {showDiagnostics ? 'Ocultar Detalhes' : 'Diagnóstico Técnico'}
+                  </button>
+                </div>
+                {showDiagnostics && renderDiagnosticInfo()}
               </div>
             )}
 
